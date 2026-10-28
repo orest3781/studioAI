@@ -4,6 +4,7 @@ const files = require('./payload.cjs').map(file => `studio/${file}`);
 files.push(...['package.json','package-lock.json','main.cjs','backend.cjs','updates.cjs','stage.cjs','payload.cjs','source-bundle.cjs','README.md','.gitignore','tests/desktop.test.cjs','tests/packaged_backend.py'].map(file => `desktop/${file}`), '.github/workflows/release.yml');
 const target = path.join(__dirname, 'source-release');
 files.push('desktop/installer.nsh', 'desktop/RELEASE-NOTES.md', 'desktop/UPGRADE-VALIDATION.md', 'desktop/tests/upgrade_snapshot.py');
+files.push('desktop/WINDOWS-BLOCK-DIAGNOSIS.txt', 'desktop/tests/compare_windows_releases.cjs');
 files.push(...['signing.cjs','release.cjs','verify-release.ps1','tests/signing.test.cjs'].map(file => `desktop/${file}`));
 for (const file of files) {
   const destination = path.join(target, file);

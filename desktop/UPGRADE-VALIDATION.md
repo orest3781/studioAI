@@ -2,6 +2,8 @@
 
 Result: installer upgrade and rollback passed; launching unsigned 0.1.1 was blocked by Windows Application Control. End-to-end upgrade validation is incomplete. No policy changes, exceptions, certificate imports, unblocking, or security bypasses were attempted.
 
+Follow-up diagnosis: the blocking policy is Smart App Control's VerifiedAndReputableDesktop. Both releases are unsigned; the only semantic packaged application change is the version number, and the executable code sections match. See [WINDOWS-BLOCK-DIAGNOSIS.txt](WINDOWS-BLOCK-DIAGNOSIS.txt) for the evidence, uncertainty about the exact cloud verdict, and no-cost distribution options.
+
 - Published unsigned 0.1.0 and 0.1.1 installers with SHA-256 checksum files to GitHub Releases.
 - Downloaded both published installers and verified their checksums.
 - Installed 0.1.0 per-user and confirmed its authenticated backend version and external runtime path.

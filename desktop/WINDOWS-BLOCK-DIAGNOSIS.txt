@@ -1,0 +1,42 @@
+STUDIOAI WINDOWS BLOCK DIAGNOSIS — 2026-10-28
+
+Finding
+Windows Smart App Control blocked the unsigned StudioAI 0.1.1 executable. No application-code repair has been identified that would legitimately resolve this trust decision. The previously working 0.1.0 remains installed; it was not replaced during this investigation.
+
+Evidence
+- CodeIntegrity Operational event 3077, record 667199, 2026-10-28 18:33:42 Eastern.
+- Policy: VerifiedAndReputableDesktop, GUID {0283ac0f-fff1-49ae-ada1-8a933130cad6}.
+- Status: 0xc0e90002. Requested signing level 2; validated level 1.
+- Correlated event 3089: zero signatures; publisher and issuer Unknown.
+- Smart App Control state was read as 1 (enforcement).
+- The event's flat SHA-256 matches the exact 0.1.1 executable in the release build.
+- The downloaded GitHub installer has the same SHA-256 as the original build and its published checksum. No download corruption was found.
+- Both 0.1.0 and 0.1.1 executables report NotSigned and contain no PE certificate table.
+
+Comparison
+134 packaged files compared. Only StudioAI.exe and resources/app.asar differ; the other 132 files match byte-for-byte. Within app.asar, only package.json differs, and its only semantic field change is version. In the executable, only the .rsrc section changes; executable code sections match. No generation, caption, export, Chromium or native-library code changed between these releases.
+
+Executable SHA-256 hashes
+0.1.0: 74dd464b063f8af39ac3db03a5d7f5a950c708ae3643ec0b40c93bc9c839b7ef
+0.1.1: b9901809e7f6160cf4790f3d14957327f7a6dc477faa114e1b8618345a0fff16
+
+Interpretation and limits
+Microsoft documents that Smart App Control can accept recognized unsigned binaries and block unknown unsigned binaries. Each changed executable has a different hash. This is consistent with 0.1.0 and 0.1.1 receiving different reputation decisions. The local log establishes the rejected file and policy but does not reveal Microsoft's exact cloud reputation verdict or why 0.1.0 was allowed. This is not evidence that 0.1.1 was detected as malware, nor a guarantee that 0.1.0 will always be allowed.
+
+No-cost options that preserve Windows security
+1. Microsoft Store distribution: convert to an MSIX Store submission. Store-distributed MSIX packages receive Microsoft signing for free. Individual developer registration is currently free through the new onboarding flow. Requires user identity verification, Store package identity, packaging/compatibility tests and certification. This changes distribution; it does not make the existing GitHub EXE trusted. External-runtime reuse will need specific Store review/compatibility validation.
+2. SignPath Foundation: potential free signing for eligible open-source projects. Acceptance is discretionary and includes an OSI-approved license, project reputation, verifiable builds and maintainer requirements. This repository currently has no open-source license; no license was added or application submitted. Do not assume eligibility.
+3. Microsoft feedback: a sanitized review-request draft is prepared locally. Feedback may help investigate the classification but is not guaranteed approval or a general mechanism to establish reputation for all future unsigned GitHub releases.
+
+Not attempted
+No security settings, trust stores, policy files, registry values, allowlists, executable hashes, signing identities, or runtime hosts were changed to evade the block. No repeated launch of 0.1.1 was attempted. No models, personal media, raw security logs or workspace data were uploaded. CiTool's policy-listing command returned access denied; no ownership/elevation workaround was attempted. The identifying policy was already available in the readable event log.
+
+Preservation
+Read-only comparisons against the existing backup confirmed unchanged workspace file hashes, logical SQLite contents, model file inventory, runtime configuration, and all eight Windows policy hashes. Model comparison checks size, modification time and file identity; it does not rehash all model contents.
+
+References
+https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/overview
+https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation
+https://learn.microsoft.com/en-us/windows/msix/package/signing-package-overview
+https://learn.microsoft.com/en-us/windows/apps/publish/whats-new-individual-developer
+https://signpath.org/terms.html
