@@ -14,9 +14,10 @@
     "test": "node --test tests/*.test.cjs",
     "dist": "npm run stage && electron-builder --win nsis --x64 --publish never",
     "release:check": "node release.cjs --check",
-    "release": "node release.cjs"
+    "release:signed": "node release.cjs",
+    "release": "npm run dist"
   },
-  "dependencies": { "electron-updater": "6.8.11" },
+  "dependencies": {},
   "devDependencies": { "electron": "45.1.0", "electron-builder": "26.18.0" },
   "build": {
     "appId": "com.orest3781.studioai",
@@ -25,7 +26,7 @@
     "extraResources": [{"from": "stage/studio", "to": "studio"}],
     "directories": {"output": "dist"},
     "win": {"target": "nsis", "artifactName": "StudioAI-${version}-Windows-${arch}.${ext}"},
-    "nsis": {"oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "deleteAppDataOnUninstall": false},
-    "publish": [{"provider": "github", "owner": "orest3781", "repo": "studioAI", "releaseType": "draft"}]
+    "nsis": {"oneClick": false, "perMachine": false, "allowElevation": false, "allowToChangeInstallationDirectory": false, "deleteAppDataOnUninstall": false, "runAfterFinish": false, "include": "installer.nsh"},
+    "publish": null
   }
 }

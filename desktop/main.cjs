@@ -1,5 +1,5 @@
 'use strict';
-const {app, BrowserWindow, Menu, dialog, session} = require('electron');
+const {app, BrowserWindow, Menu, dialog, session, shell} = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const backend = require('./backend.cjs');
@@ -27,7 +27,7 @@ else {
       instance = await backend.start({root, code, version: app.getVersion(), stateFile: path.join(app.getPath('userData'), 'backend-session.json'), logDir: app.getPath('logs')});
       session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
       session.defaultSession.setPermissionCheckHandler(() => false);
-      // Renderer stays local. Only the main-process updater contacts GitHub.
+      // Renderer stays local. Manual release links open in the user's browser.
       session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
         const allowed = details.url.startsWith(backend.BASE + '/') || /^(blob:http:\/\/127\.0\.0\.1:8190\/|data:)/.test(details.url);
         callback({cancel: !allowed});
@@ -37,15 +37,12 @@ else {
       window.webContents.setWindowOpenHandler(() => ({action: 'deny'}));
       window.webContents.on('will-navigate', (event, url) => {if (!url.startsWith(backend.BASE + '/')) event.preventDefault();});
       const prepare = async () => {await backend.stop(instance.token); instance = null; exiting = true;};
-      let update;
-      if (app.isPackaged) {
-        const {autoUpdater} = require('electron-updater');
-        update = require('./updates.cjs').configure(autoUpdater, {confirm, inform, prepare, install: () => autoUpdater.quitAndInstall(false, true)});
-      }
+      const update = require('./updates.cjs').configure({version: app.getVersion(),
+        showMessage: options => dialog.showMessageBox(window, options),
+        openExternal: url => shell.openExternal(url)});
       Menu.setApplicationMenu(Menu.buildFromTemplate([
         {label: 'StudioAI', submenu: [
-          {label: 'Check for updates…', click: () => update ? update.check() : inform('Updates are available in the installed app.')},
-          {label: 'Install downloaded update…', click: () => update ? update.apply() : inform('Build and install StudioAI first.')},
+          {label: 'Manual updates…', click: () => update.open().catch(error => inform(error.message))},
           {label: 'About StudioAI', click: () => inform(`StudioAI ${app.getVersion()}\nLocal runtime: ${root}\nUpdates: github.com/orest3781/studioAI\nModels and workspace data stay in your local runtime folder.`)},
           {type: 'separator'}, {label: 'Quit', accelerator: 'Alt+F4', click: () => window.close()}
         ]}, {role: 'editMenu'}, {role: 'viewMenu'}

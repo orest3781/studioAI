@@ -1,30 +1,12 @@
 'use strict';
-// Explicit downloads and installs. Closing the window never installs an update.
-function configure(updater, {confirm, inform, prepare, install}) {
-  updater.autoDownload = false;
-  updater.autoInstallOnAppQuit = false;
-  updater.allowPrerelease = false;
-  updater.allowDowngrade = false;
-  let checking = false, downloaded = false;
-  updater.on('update-not-available', () => inform('StudioAI is up to date.'));
-  updater.on('error', error => inform(`Update failed: ${error.message}. Your local workspace is unchanged.`));
-  updater.on('update-available', async info => {
-    if (await confirm(`StudioAI ${info.version} is available. Download it from GitHub?`)) {
-      try {await updater.downloadUpdate();} catch (error) {inform(error.message);}
-    }
-  });
-  updater.on('update-downloaded', () => {downloaded = true; inform('Update downloaded. Save your edits, then choose StudioAI → Install downloaded update.');});
-  return {
-    async check() {
-      if (checking) return;
-      checking = true;
-      try {await updater.checkForUpdates();} catch {} finally {checking = false;}
-    },
-    async apply() {
-      if (!downloaded) return inform('No downloaded update is ready. Choose Check for updates first.');
-      if (!(await confirm('Save your caption edits before continuing. Install the downloaded update and restart StudioAI?'))) return;
-      try {await prepare(); install();} catch (error) {inform(error.message);}
-    }
-  };
+const RELEASES_URL = 'https://github.com/orest3781/studioAI/releases/latest';
+function configure({version, showMessage, openExternal}) {
+  return {async open() {
+    const result = await showMessage({type: 'info', title: 'StudioAI manual updates',
+      message: `Installed version: ${version}`,
+      detail: 'Open GitHub Releases and download the newer Windows installer. Save your edits, finish or cancel queued work, then quit StudioAI before running it. Install over the existing app; do not uninstall first. Models and workspace stay in your existing runtime folder.\n\nThese releases are unsigned. Keep Windows security enabled; if Windows blocks an installer, stop rather than changing security settings. StudioAI never downloads or installs updates automatically.',
+      buttons: ['Cancel', 'Open GitHub Releases'], defaultId: 0, cancelId: 0});
+    if (result.response === 1) await openExternal(RELEASES_URL);
+  }};
 }
-module.exports = {configure};
+module.exports = {configure, RELEASES_URL};

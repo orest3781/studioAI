@@ -1,31 +1,26 @@
-# StudioAI for Windows
+# StudioAI Windows: manual updates
 
-This first installer reuses an existing AI Video installation. It does not install or update Python, ComfyUI, models, CUDA, FFmpeg or caption dependencies. Fresh-PC installation is not supported yet.
+This installer is unsigned and reuses an existing AI Video setup. It does not install or replace Python, ComfyUI, CUDA, models, FFmpeg, or caption dependencies. Fresh-PC setup is not supported yet.
 
-## Use
+## Install and update
 
-Install the NSIS `.exe`, open StudioAI, and select the existing folder containing `.venv`, `ComfyUI` and `studio/data`. Save edits and finish queued work before closing the old browser/server version. The desktop app refuses to take over an unrelated process on port 8190. Start ComfyUI using your existing launcher when generation is needed.
+1. Download the Windows x64 installer from https://github.com/orest3781/studioAI/releases/latest.
+2. Save edits and finish or cancel queued jobs. Quit StudioAI. The installer refuses to run while StudioAI is open.
+3. Run the installer over the existing installation. Do not uninstall first. StudioAI installs per-user; its code is separate from your selected AI Video runtime folder.
+4. Reopen StudioAI. On first launch, select the existing folder containing `.venv`, `ComfyUI`, and `studio/data`. Later launches remember it. Start ComfyUI using your existing launcher when needed.
 
-StudioAI → Check for updates checks public GitHub releases in `orest3781/studioAI`. Downloads require confirmation. Save edits, then choose Install downloaded update; queued generation, exports and analysis block installation. Closing StudioAI does not install updates. No automatic update checks, telemetry, hosted inference or model uploads are added. Checking/downloading updates contacts GitHub; editing and generation stay local.
+The StudioAI > Manual updates menu shows your installed version and opens the fixed GitHub Releases page in your browser. There are no automatic checks, downloads, installs, updater dependencies or update feeds. The installer never copies or deletes your external models, originals, captions, styles or SQLite workspace. Save your work before upgrading. Keep normal backups.
 
-App code lives in the install directory. Models, SQLite, originals, caption styles and edits remain in the selected runtime's `studio` folder. Configuration and desktop session credentials live in Electron's per-user `StudioAI`/`studioai-desktop` app-data directory; use the actual `app.getPath('userData')` location for support. Backend logs live under Electron's logs directory. Uninstalling leaves workspace data intact. A crashed desktop process can reconnect to its authenticated backend; unknown servers are never killed.
+Windows may identify the unsigned installer as an unknown publisher. Keep SmartScreen, Defender, Application Control and certificate validation enabled. If Windows blocks execution, stop; do not disable security or change trust settings. A SHA256SUMS.txt release asset lets you compare the downloaded file's SHA-256 checksum; it does not establish a trusted publisher.
 
-## Build
+## Build and publish
 
-From `desktop`: `npm ci`, `npm test`, `npm run dist`. The resulting installer is in `dist`. Local builds are unsigned; Windows may require a trusted signing identity under existing security policy. Do not disable SmartScreen, Application Control, Defender or PowerShell policy. Production releases must be signed.
+From `desktop`: `npm ci`, `npm test`, `npm run dist`. Artifacts are in `dist`. `npm run release` builds locally without uploading. `payload.cjs` is an explicit code/recipe allowlist; it excludes all models, environments, logs and user data.
 
-Set `STUDIO_WORKSPACE_ROOT` to the existing installation for development, run `npm run setup:electron` once to obtain the development Electron binary, then `npm start`. `stage.cjs` copies only `payload.cjs`'s explicit code/recipe list. It never packages local data or model weights. `npm run dist` never publishes.
+Use `node desktop/source-bundle.cjs` from the local AI Video root to prepare the clean source repository in `desktop/source-release`. Never upload the whole AI Video folder.
 
-## GitHub releases
+For a new release, run `npm version 0.1.2 --no-git-tag-version`, update RELEASE-NOTES.md, commit, and push a matching `v0.1.2` tag. GitHub Actions tests and builds an unsigned installer and SHA-256 checksum into a draft release. Review then publish the draft. Existing release assets are not overwritten. No signing credentials are needed for this manual-release workflow.
 
-The clean repository needs `studio/`'s allowlisted source files, `desktop/`'s source and lockfile, and `.github/workflows/release.yml`. Do not upload the AI Video folder wholesale. Use `node desktop/source-bundle.cjs` to prepare an allowlisted source tree under `desktop/source-release`.
+For development, set STUDIO_WORKSPACE_ROOT to your runtime folder, run `npm run setup:electron` once, then `npm start`. Runtime configuration lives in `%APPDATA%/StudioAI/runtime.json`; backend logs are under `%APPDATA%/StudioAI/logs`.
 
-Set repository variable `WINDOWS_PUBLISHER_NAME` to the exact certificate publisher and `WINDOWS_SIGNING_PROVIDER` to `certificate` or `azure`. For `certificate`, configure secrets `CSC_LINK` and `CSC_KEY_PASSWORD` using an existing supported certificate. For `azure`, configure variables `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT`, `AZURE_SIGNING_PROFILE` and secrets `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` for an already-authorized signing identity. Use a Public Trust profile after completing Microsoft identity validation. Do not paste secrets into chat or commit them. Other hardware-token or cloud providers require a provider-specific integration before release.
-
-`npm run release:check` validates configuration without signing or uploading. `npm run release` builds with mandatory signing, then checks Windows Authenticode trust, publisher and timestamps on both the app and installer. It never uploads. GitHub Actions uploads only after those checks pass. The updater's publisher-signature verification stays enabled. Keep the signing identity stable across versions. No self-signed root is installed and no Windows security policy is changed.
-
-Once a trusted identity is configured, build and publish a signed `0.1.0`, install it, and then build/publish `0.1.1`. Before the upgrade, save edits, let queues finish, make a SQLite online backup, and record hashes of model files and workspace documents. Exercise Check for updates, download, and Install downloaded update in the installed app. Confirm `0.1.1` is running, compare data/model hashes, reopen captions, and run generation/export checks. Do not treat an unsigned or simulated upgrade as completing this test. This sequence remains pending until the signing identity is available.
-
-Increment `desktop/package.json` and lockfile versions together (`npm version 0.1.1 --no-git-tag-version`), commit, then push tag `v0.1.1`. Actions builds the signed NSIS installer, blockmap and `latest.yml` into a **draft** release. Review its artifacts and release notes, then publish the draft to make it discoverable. Keep all three release assets together. The first signed release should be installed manually before validating a second signed release update.
-
-Use monotonically increasing versions. Downgrades are disabled. The selected runtime and dependencies are deliberately not auto-upgraded; future schema migrations need backups and compatibility tests before release. A production GitHub download/install round trip requires two published signed versions and is not equivalent to the local updater state-machine tests.
+The optional `release:signed`, signing.cjs and verify-release.ps1 files are retained for a future trusted signing identity. They are not used by the manual release workflow and still refuse unsigned input. Windows security settings are never changed by these scripts.

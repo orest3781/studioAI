@@ -1,5 +1,8 @@
 node_modules/
 dist/
+dist-manual/
+release-downloads/
+upgrade-validation/
 stage/
 source-release/
 *.log
