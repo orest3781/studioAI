@@ -1,7 +1,7 @@
 {
   "name": "studioai-desktop",
   "productName": "StudioAI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Local AI creation and social media studio",
   "author": "orest3781",
@@ -18,15 +18,41 @@
     "release": "npm run dist"
   },
   "dependencies": {},
-  "devDependencies": { "electron": "45.1.0", "electron-builder": "26.18.0" },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
   "build": {
     "appId": "com.orest3781.studioai",
     "asar": true,
-    "files": ["main.cjs", "backend.cjs", "updates.cjs", "package.json"],
-    "extraResources": [{"from": "stage/studio", "to": "studio"}],
-    "directories": {"output": "dist"},
-    "win": {"target": "nsis", "artifactName": "StudioAI-${version}-Windows-${arch}.${ext}"},
-    "nsis": {"oneClick": false, "perMachine": false, "allowElevation": false, "allowToChangeInstallationDirectory": false, "deleteAppDataOnUninstall": false, "runAfterFinish": false, "include": "installer.nsh"},
+    "files": [
+      "main.cjs",
+      "backend.cjs",
+      "updates.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "stage/studio",
+        "to": "studio"
+      }
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "StudioAI-${version}-Windows-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": false,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": false,
+      "include": "installer.nsh"
+    },
     "publish": null
   }
 }
