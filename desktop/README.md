@@ -1,5 +1,7 @@
 # StudioAI Windows: manual updates
 
+Current validation: 0.1.0 runs on the test PC. The 0.1.1 installer upgraded successfully, but Windows Application Control blocked launching it; it is a prerelease and 0.1.0 was restored. See [UPGRADE-VALIDATION.md](UPGRADE-VALIDATION.md). End-to-end upgrade validation remains incomplete; no security exceptions were added.
+
 This installer is unsigned and reuses an existing AI Video setup. It does not install or replace Python, ComfyUI, CUDA, models, FFmpeg, or caption dependencies. Fresh-PC setup is not supported yet.
 
 ## Install and update
