@@ -1,0 +1,66 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "studio-reference-bear.png"
+    }
+  },
+  "2": {
+    "class_type": "LoadRembgByBiRefNetModel",
+    "inputs": {
+      "model": "General-Lite.safetensors",
+      "device": "AUTO",
+      "use_weight": false,
+      "dtype": "float32"
+    }
+  },
+  "3": {
+    "class_type": "GetMaskByBiRefNet",
+    "inputs": {
+      "model": [
+        "2",
+        0
+      ],
+      "images": [
+        "1",
+        0
+      ],
+      "width": 1024,
+      "height": 1024,
+      "upscale_method": "bilinear",
+      "mask_threshold": 0.0
+    }
+  },
+  "6": {
+    "class_type": "InvertMask",
+    "inputs": {
+      "mask": [
+        "3",
+        0
+      ]
+    }
+  },
+  "4": {
+    "class_type": "JoinImageWithAlpha",
+    "inputs": {
+      "image": [
+        "1",
+        0
+      ],
+      "alpha": [
+        "6",
+        0
+      ]
+    }
+  },
+  "5": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "images": [
+        "4",
+        0
+      ],
+      "filename_prefix": "studio-tests/background"
+    }
+  }
+}

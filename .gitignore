@@ -1,0 +1,5 @@
+desktop/node_modules/
+desktop/dist/
+desktop/stage/
+desktop/source-release/
+**/__pycache__/

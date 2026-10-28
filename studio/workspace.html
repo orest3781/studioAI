@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Local Studio — Workspace</title><link rel="stylesheet" href="/workspace.css"><link rel="stylesheet" href="/social-export.css"></head>
+<body>
+<a class="skip-link" href="#main-workspace">Skip to workspace</a>
+<nav class="rail" aria-label="Main navigation">
+  <a class="brand-mark" href="/" aria-label="Local Studio">◈</a>
+  <button class="rail-button active" data-view="workspace" aria-pressed="true"><span aria-hidden="true">▣</span>Studio</button>
+  <button class="rail-button" data-view="library" aria-pressed="false"><span aria-hidden="true">▦</span>Library</button>
+  <button class="rail-button" data-view="recipes" aria-pressed="false"><span aria-hidden="true">✧</span>Recipes</button>
+  <div class="rail-bottom"><a class="rail-link" href="/classic">Classic ↗</a><a class="rail-link" href="http://127.0.0.1:8188" target="_blank" rel="noopener">Engine ↗</a></div>
+</nav>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="project-control"><span class="wordmark">LOCAL STUDIO</span><span class="separator">/</span><label class="sr-only" for="project-select">Project</label><select id="project-select"><option value="default">My workspace</option></select><button id="new-project" class="icon-button" aria-label="New project" title="New project">＋</button></div>
+    <div class="top-actions"><span id="save-state" class="muted small">Local workspace</span><button id="import-button" class="button secondary">＋ Import</button><button id="queue-toggle" class="button secondary" aria-expanded="false" aria-controls="queue-drawer">Queue <span id="queue-count" class="count">0</span></button><button id="export-button" class="button primary" disabled>Export</button></div>
+  </header>
+  <div id="connection-banner" class="connection-banner" role="status" hidden></div>
+  <main id="main-workspace" class="workspace-layout">
+    <aside class="asset-panel" aria-label="Project assets">
+      <div class="panel-heading"><h2>Assets <span id="asset-count" class="muted">0</span></h2><button id="rescan-assets" class="icon-button" title="Index existing Studio outputs" aria-label="Refresh asset library">↻</button></div>
+      <label class="search-field"><span aria-hidden="true">⌕</span><input id="asset-search" type="search" placeholder="Search your assets" aria-label="Search assets"></label>
+      <div class="asset-filter-row"><label class="sr-only" for="asset-kind">Media type</label><select id="asset-kind"><option value="all">All media</option><option value="image">Images</option><option value="video">Videos</option><option value="audio">Audio</option></select><button id="favorites-filter" class="icon-button" aria-pressed="false" aria-label="Show favorites" title="Favorites">☆</button></div>
+      <div id="asset-grid" class="asset-grid"></div>
+      <div class="asset-panel-footer"><span id="engine-state" class="engine-state">Connecting…</span><span class="muted small">Originals stay on this PC</span></div>
+    </aside>
+    <section class="creation-panel" aria-label="Creative workspace">
+      <div class="viewer-toolbar"><div class="viewer-heading"><span id="view-eyebrow" class="eyebrow">WORKSPACE</span><h1 id="asset-title">Your next idea starts here</h1></div><div class="viewer-actions"><button id="favorite-asset" class="icon-button" aria-label="Favorite selected asset" aria-pressed="false" disabled>☆</button><button id="choose-asset" class="button secondary" disabled>Choose version</button><button id="compare-toggle" class="button secondary" disabled>Compare <span id="compare-count">0/2</span></button></div></div>
+      <div id="stage" class="stage"><div class="empty-state"><span class="empty-symbol">◈</span><h2>A place for your ideas.</h2><p>Import an image, explore a recipe, or create something new.</p><button class="button primary" data-import>Import media</button></div></div>
+      <div id="library-board" class="library-board" hidden></div><div id="recipes-board" class="recipes-board" hidden></div>
+      <div id="media-actions" class="media-actions" hidden></div>
+      <section id="variation-section" class="variation-section" aria-label="Variations"><div class="section-label"><h2 id="variations-title">Recent assets</h2><span class="muted small">Check two thumbnails to compare</span></div><div id="variation-strip" class="variation-strip"></div></section>
+    </section>
+    <aside class="inspector" aria-label="Creation controls">
+      <div class="inspector-tabs" role="tablist" aria-label="Inspector"><button id="create-tab" role="tab" aria-controls="create-panel" aria-selected="true" class="active">Create</button><button id="details-tab" role="tab" aria-controls="details-panel" aria-selected="false">Asset details</button></div>
+      <section id="create-panel" role="tabpanel" aria-labelledby="create-tab"><div class="workflow-picker"><label for="workflow-select">What would you like to make?</label><select id="workflow-select"></select></div><div id="creation-form"><p class="muted">Loading creation tools…</p></div></section>
+      <section id="details-panel" role="tabpanel" aria-labelledby="details-tab" hidden></section>
+    </aside>
+  </main>
+</div>
+<aside id="queue-drawer" class="queue-drawer" aria-label="Render queue" hidden><div class="queue-heading"><div><span class="eyebrow">ON YOUR MACHINE</span><h2>Render queue</h2></div><button id="queue-close" class="icon-button" aria-label="Close render queue">×</button></div><p class="muted small">One GPU render at a time. Keep creating while your jobs run.</p><div class="queue-controls"><button id="pause-queue" class="button secondary">Pause after current</button><span id="queue-summary" class="muted small"></span></div><p id="queue-error" role="alert" class="error-text"></p><div id="queue-list"></div></aside>
+<dialog id="project-dialog"><form id="project-form"><div class="dialog-heading"><h2>New project</h2><button type="button" class="icon-button" id="close-project" aria-label="Close">×</button></div><label for="project-name">Project name</label><input id="project-name" maxlength="80" required placeholder="e.g. Autumn campaign"><p class="muted">Keep references, variations, and renders together.</p><p id="project-error" role="alert" class="error-text"></p><button class="button primary" type="submit">Create project</button></form></dialog>
+<dialog id="asset-picker"><div class="dialog-heading"><h2>Choose an asset</h2><button id="picker-close" class="icon-button" aria-label="Close asset picker">×</button></div><div id="picker-assets" class="picker-assets"></div></dialog>
+<input id="import-files" class="sr-only" type="file" accept="image/png,image/jpeg,image/webp,video/mp4,video/webm,video/quicktime,audio/*" multiple>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="export-dialog" aria-labelledby="export-title">
+  <div class="dialog-heading"><div><span class="eyebrow">SOCIAL DELIVERY</span><h2 id="export-title">Frame & export</h2></div><button id="export-close" class="icon-button" aria-label="Close export">×</button></div>
+  <p id="export-source" class="muted"></p>
+  <div class="export-layout">
+    <div class="export-preview-column"><div id="export-preview-wrap"><img id="export-preview" alt="Export framing preview"><div id="export-safe-guide" hidden><span>Keep key text inside</span></div></div><span id="export-preview-state" class="muted small" role="status"></span><label class="export-check"><input id="export-guides" type="checkbox">Show text-safe guide</label><p class="field-note">Guide is approximate; platform controls vary. It is never included in the export. Video preview shows the first frame.</p></div>
+    <form id="export-form" class="export-controls">
+      <div><label for="export-preset">Export preset</label><select id="export-preset"></select></div>
+      <div class="form-row"><div><label for="export-ratio">Aspect ratio</label><select id="export-ratio"><option value="9:16">9:16 · Vertical</option><option value="4:5">4:5 · Portrait</option><option value="1:1">1:1 · Square</option><option value="16:9">16:9 · Landscape</option></select></div><div><label for="export-size">Resolution</label><select id="export-size"><option value="1080">Full HD</option><option value="720">Smaller file</option></select></div></div>
+      <div><label for="export-fit">Framing</label><select id="export-fit"><option value="contain">Fit · keep the full image</option><option value="crop">Fill · crop to the frame</option><option value="blur">Fit · blurred background</option></select></div>
+      <div id="export-position" class="form-row" hidden><div><label for="export-x">Horizontal position</label><input id="export-x" type="range" min="0" max="100" value="50"></div><div><label for="export-y">Vertical position</label><input id="export-y" type="range" min="0" max="100" value="50"></div></div>
+      <div class="form-row"><div><label for="export-format">File format</label><select id="export-format"></select></div><div><label for="export-background">Background</label><select id="export-background"><option value="black">Charcoal</option><option value="white">White</option><option value="transparent">Transparent</option></select></div></div>
+      <div id="export-fps-row"><label for="export-fps">Frame rate</label><select id="export-fps"><option value="source">Keep source frame rate</option><option value="30">30 fps</option><option value="60">60 fps</option></select></div>
+      <div id="export-spec" class="export-spec"></div><div id="export-notes" class="field-note"></div>
+      <p id="export-error" class="error-text" role="alert"></p>
+      <button id="export-submit" class="button primary" type="submit">Create export</button>
+      <a id="export-original" class="button secondary" download>Download original</a>
+    </form>
+  </div>
+  <section class="export-history"><h3>Exports of this asset</h3><div id="export-history"></div></section>
+</dialog>
+<link rel="stylesheet" href="/editing.css">
+<link rel="stylesheet" href="/batch-export.css">
+<script src="/app.js"></script><script src="/workspace.js"></script><script src="/social-export.js"></script><script src="/caption-ui.js"></script><script src="/caption-alignment.js"></script><script src="/caption-timeline-model.js"></script><script src="/caption-phrase-model.js"></script><script src="/caption-phrases.js"></script><script src="/caption-readability-model.js"></script><script src="/caption-readability.js"></script><script src="/caption-fix-model.js"></script><script src="/caption-fixes.js"></script><script src="/caption-waveform.js"></script><script src="/caption-timeline.js"></script><script src="/editing.js"></script><script src="/batch-export.js"></script>
+</body></html>

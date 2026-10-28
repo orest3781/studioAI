@@ -1,0 +1,272 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "wan_animate_2_distill_int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "cpu"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "A friendly anthropomorphic beaver wearing a bright green shirt, moving its arms and body in a sunny meadow, medium shot."
+    }
+  },
+  "5": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "blurry, text, watermark"
+    }
+  },
+  "6": {
+    "class_type": "ModelSamplingSD3",
+    "inputs": {
+      "model": [
+        "1",
+        0
+      ],
+      "shift": 5.0
+    }
+  },
+  "7": {
+    "class_type": "WanAnimate2ToVideo",
+    "inputs": {
+      "positive": [
+        "4",
+        0
+      ],
+      "negative": [
+        "5",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ],
+      "width": 320,
+      "height": 192,
+      "length": 17,
+      "batch_size": 1,
+      "video_frame_offset": 0,
+      "pose_strength": 1.0,
+      "pose_start_percent": 0.0,
+      "pose_end_percent": 1.0,
+      "reference_image_strength": 1.0,
+      "reference_image": [
+        "12",
+        0
+      ],
+      "pose_video": [
+        "15",
+        0
+      ],
+      "clip_vision_output": [
+        "17",
+        0
+      ],
+      "clip_vision_output_pose": [
+        "21",
+        0
+      ],
+      "positive_pose": [
+        "22",
+        0
+      ]
+    }
+  },
+  "8": {
+    "class_type": "KSampler",
+    "inputs": {
+      "model": [
+        "18",
+        0
+      ],
+      "positive": [
+        "7",
+        0
+      ],
+      "negative": [
+        "7",
+        1
+      ],
+      "latent_image": [
+        "7",
+        2
+      ],
+      "seed": 42,
+      "steps": 10,
+      "cfg": 1,
+      "sampler_name": "lcm",
+      "scheduler": "simple",
+      "denoise": 1.0
+    }
+  },
+  "9": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "19",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
+    }
+  },
+  "10": {
+    "class_type": "CreateVideo",
+    "inputs": {
+      "images": [
+        "9",
+        0
+      ],
+      "fps": 16.0
+    }
+  },
+  "11": {
+    "class_type": "SaveVideo",
+    "inputs": {
+      "video": [
+        "10",
+        0
+      ],
+      "filename_prefix": "studio-tests/motion",
+      "format": "mp4",
+      "format.codec": "h264"
+    }
+  },
+  "12": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "beaver-reference.jpg"
+    }
+  },
+  "13": {
+    "class_type": "LoadVideo",
+    "inputs": {
+      "file": "beaver-source-quality.mp4"
+    }
+  },
+  "14": {
+    "class_type": "GetVideoComponents",
+    "inputs": {
+      "video": [
+        "13",
+        0
+      ]
+    }
+  },
+  "15": {
+    "class_type": "ImageFromBatch",
+    "inputs": {
+      "image": [
+        "14",
+        0
+      ],
+      "batch_index": 0,
+      "length": 17
+    }
+  },
+  "16": {
+    "class_type": "CLIPVisionLoader",
+    "inputs": {
+      "clip_name": "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
+    }
+  },
+  "17": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": [
+        "16",
+        0
+      ],
+      "image": [
+        "12",
+        0
+      ],
+      "crop": "none"
+    }
+  },
+  "18": {
+    "class_type": "WanAnimate2Cache",
+    "inputs": {
+      "model": [
+        "6",
+        0
+      ],
+      "device": "cpu",
+      "dtype": "int8"
+    }
+  },
+  "20": {
+    "class_type": "ImageFromBatch",
+    "inputs": {
+      "image": [
+        "15",
+        0
+      ],
+      "batch_index": 0,
+      "length": 1
+    }
+  },
+  "21": {
+    "class_type": "CLIPVisionEncode",
+    "inputs": {
+      "clip_vision": [
+        "16",
+        0
+      ],
+      "image": [
+        "20",
+        0
+      ],
+      "crop": "none"
+    }
+  },
+  "22": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "2",
+        0
+      ],
+      "text": "A person moving their arms and body in an indoor gym."
+    }
+  },
+  "19": {
+    "class_type": "TrimVideoLatent",
+    "inputs": {
+      "samples": [
+        "8",
+        0
+      ],
+      "trim_amount": [
+        "7",
+        3
+      ]
+    }
+  }
+}
