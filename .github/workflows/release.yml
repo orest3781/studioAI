@@ -8,6 +8,17 @@ permissions:
 jobs:
   windows:
     runs-on: windows-latest
+    env:
+      WINDOWS_SIGNING_PROVIDER: ${{ vars.WINDOWS_SIGNING_PROVIDER }}
+      WINDOWS_PUBLISHER_NAME: ${{ vars.WINDOWS_PUBLISHER_NAME }}
+      CSC_LINK: ${{ secrets.CSC_LINK }}
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      AZURE_SIGNING_ENDPOINT: ${{ vars.AZURE_SIGNING_ENDPOINT }}
+      AZURE_SIGNING_ACCOUNT: ${{ vars.AZURE_SIGNING_ACCOUNT }}
+      AZURE_SIGNING_PROFILE: ${{ vars.AZURE_SIGNING_PROFILE }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
     defaults:
       run:
         working-directory: desktop
@@ -22,23 +33,21 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: Require matching version and signing identity
-        env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          WINDOWS_PUBLISHER_NAME: ${{ vars.WINDOWS_PUBLISHER_NAME }}
         run: |
           $version = (Get-Content package.json | ConvertFrom-Json).version
           if ($env:GITHUB_REF_TYPE -ne 'tag' -or $env:GITHUB_REF_NAME -ne "v$version") { throw 'Run this workflow on a vVERSION tag matching package.json.' }
-          if (-not $env:CSC_LINK -or -not $env:WINDOWS_PUBLISHER_NAME) { throw 'Configure CSC_LINK, CSC_KEY_PASSWORD and WINDOWS_PUBLISHER_NAME before publishing signed updates.' }
-      - name: Build signed installer and draft GitHub release
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Stable version required.' }
+          npm run release:check
+          if ($LASTEXITCODE -ne 0) { throw 'Signing configuration is incomplete.' }
+      - name: Build and verify signed artifacts
+        run: npm run release
+      - name: Upload verified artifacts to a draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          WINDOWS_PUBLISHER_NAME: ${{ vars.WINDOWS_PUBLISHER_NAME }}
         run: |
-          npm run stage
-          npx electron-builder --win nsis --x64 --publish always --config.forceCodeSigning=true --config.win.publisherName="$env:WINDOWS_PUBLISHER_NAME"
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          gh release create "v$version" "dist/StudioAI-$version-Windows-x64.exe" "dist/StudioAI-$version-Windows-x64.exe.blockmap" dist/latest.yml dist/signature-verification.json --repo "$env:GITHUB_REPOSITORY" --verify-tag --draft --title "StudioAI $version" --notes "Signed Windows release. Reuses your existing local AI runtime; models and workspace remain outside the installer."
+          if ($LASTEXITCODE -ne 0) { throw 'Draft upload failed. Existing releases were not overwritten.' }
       - uses: actions/upload-artifact@v4
         with:
           name: StudioAI-Windows
@@ -46,3 +55,4 @@ jobs:
             desktop/dist/*.exe
             desktop/dist/*.blockmap
             desktop/dist/latest.yml
+            desktop/dist/signature-verification.json
